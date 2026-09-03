@@ -8,7 +8,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY EcoCharge.sln .
+COPY EcoCharge.slnx .
+COPY global.json .
 COPY src/EcoCharge.Domain/EcoCharge.Domain.csproj src/EcoCharge.Domain/
 COPY src/EcoCharge.Application/EcoCharge.Application.csproj src/EcoCharge.Application/
 COPY src/EcoCharge.Infrastructure/EcoCharge.Infrastructure.csproj src/EcoCharge.Infrastructure/

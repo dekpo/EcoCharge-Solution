@@ -7,7 +7,7 @@
 
 .EXAMPLE
   ./scripts/dotnet.ps1 --version
-  ./scripts/dotnet.ps1 build EcoCharge.sln
+  ./scripts/dotnet.ps1 build EcoCharge.slnx
   ./scripts/dotnet.ps1 test
   ./scripts/dotnet.ps1 ef migrations add InitialCreate -p src/EcoCharge.Infrastructure -s src/EcoCharge.Api
 #>

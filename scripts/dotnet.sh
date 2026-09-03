@@ -6,7 +6,7 @@
 #
 # Usage:
 #   ./scripts/dotnet.sh --version
-#   ./scripts/dotnet.sh build EcoCharge.sln
+#   ./scripts/dotnet.sh build EcoCharge.slnx
 #   ./scripts/dotnet.sh test
 #   ./scripts/dotnet.sh ef migrations add InitialCreate -p src/EcoCharge.Infrastructure -s src/EcoCharge.Api
 
