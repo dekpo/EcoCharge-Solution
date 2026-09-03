@@ -1,0 +1,150 @@
+# EcoCharge
+
+EcoCharge is an EV charging station fleet management and optimization system
+built for Swiss businesses operating vehicle fleets. It tracks charging
+stations, live charge sessions, and real-time power consumption across a
+fleet, with a lightweight footprint designed to run comfortably on a small
+personal VPS.
+
+> **Status**: work in progress — see [Project status](#project-status).
+
+## Zero local install, by design
+
+This project deliberately runs its entire backend toolchain through Docker:
+no .NET SDK, no local runtime version drift to manage, no extra weight on
+your machine. Anyone cloning this repository — a teammate, a recruiter, a
+future you on a different laptop — gets a fully working stack with:
+
+```bash
+docker compose up --build
+```
+
+That's it. The `api` image is built with a multi-stage `Dockerfile`
+(SDK for build, slim ASP.NET runtime for execution), so the container
+build itself pulls in whatever .NET SDK version is pinned, on demand,
+without ever touching the host. The same principle applies to day-to-day
+backend development — see [`scripts/dotnet.sh`](./scripts/dotnet.sh) /
+[`scripts/dotnet.ps1`](./scripts/dotnet.ps1), thin wrappers that run any
+`dotnet` command inside the SDK container with the repo mounted, so even
+`dotnet test` or `dotnet ef migrations add` never require a native install.
+
+## Architecture
+
+Monorepo containing a Clean Architecture .NET backend and a React frontend.
+
+```
+EcoCharge-Solution/
+├── src/
+│   ├── EcoCharge.Domain/          # Entities, enums, business rules — no dependencies
+│   ├── EcoCharge.Application/     # CQRS (MediatR), validation (FluentValidation), repository interfaces
+│   ├── EcoCharge.Infrastructure/  # EF Core, repository implementations, background worker
+│   └── EcoCharge.Api/             # ASP.NET Core Web API, DI wiring, CORS, error handling
+├── tests/
+│   └── EcoCharge.Tests/           # xUnit + Moq unit tests
+├── EcoCharge.Client/               # React 18+ / TypeScript / Tailwind CSS (Vite)
+├── docker-compose.yml              # Local/self-hosted stack (API + client + optional Postgres)
+├── DEPLOYMENT.md                   # VPS deployment guide (Docker or systemd + Nginx)
+└── CONTRIBUTING.md                 # Branching / commit conventions
+```
+
+### Backend — Clean Architecture + CQRS
+
+- **Domain**: `ChargingStation`, `ChargeSession` entities and `StationStatus`
+  enum (`Available`, `Charging`, `Maintenance`), plus invariants such as "a
+  charge session cannot start while its station is in `Maintenance`".
+- **Application**: one MediatR command/query per use case (e.g.
+  `CreateChargingStationCommand`, `StartChargeSessionCommand`,
+  `GetChargingStationsQuery`), validated with FluentValidation, depending only
+  on repository *interfaces* defined here.
+- **Infrastructure**: `ApplicationDbContext` (EF Core), concrete repository
+  implementations, and a `BackgroundService` that simulates power draw (kW)
+  for active charge sessions every 5 seconds.
+- **Api**: `Program.cs` wires up DI, CORS (allowing the client's origin),
+  and a global exception-handling middleware returning RFC 7807
+  `ProblemDetails` JSON responses.
+
+### Frontend — React + TypeScript + Tailwind
+
+- `components/ui`: small reusable primitives (Button, Badge, Card).
+- `features/stations`: KPI banner, station grid/cards, live consumption log.
+- `features/dashboard`: composes the above into the main dashboard page.
+- `hooks`: `useStations`, `useLiveConsumption` — all data-fetching/polling
+  logic isolated from presentation.
+- `services`: typed Axios client (`apiClient`, `stationsService`).
+
+## Prerequisites
+
+- **Docker Desktop** — the only hard requirement for the backend (targets
+  .NET 10 LTS, supported until 2028-11-14, chosen over .NET 8/9 which both
+  reach end of support on 2026-11-10). No local .NET SDK needed.
+- Node.js 20+ and npm (tested with Node 24 / npm 11) — only needed if you
+  want to run the frontend dev server outside Docker for hot-reload.
+
+## Running locally
+
+### Full stack (recommended — zero install beyond Docker)
+
+```bash
+docker compose up --build                      # SQLite by default
+docker compose --profile postgres up --build    # with PostgreSQL instead
+```
+
+API on http://localhost:5080, client on http://localhost:5173.
+
+### Frontend only, with hot-reload (faster UI iteration)
+
+```bash
+cd EcoCharge.Client
+npm install
+cp .env.example .env.local   # adjust VITE_API_BASE_URL if needed
+npm run dev                  # http://localhost:5173
+```
+
+### Backend commands without installing the SDK
+
+```bat
+REM Windows — classic cmd.exe (preferred)
+scripts\dotnet.cmd restore
+scripts\dotnet.cmd test
+scripts\dotnet.cmd run --project src/EcoCharge.Api
+```
+
+```bash
+# macOS / Linux / WSL
+./scripts/dotnet.sh restore
+./scripts/dotnet.sh test
+./scripts/dotnet.sh run --project src/EcoCharge.Api
+```
+
+## Deployment
+
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for VPS deployment options (Docker
+or systemd + Nginx). **No deployment action is ever taken automatically —
+deploying to the production VPS always requires explicit, per-action
+approval from the project owner.**
+
+## Contributing / Git workflow
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for branch naming and commit
+message conventions.
+
+## Project status
+
+- [x] Repository initialized, governance docs
+- [x] React client scaffolded (Vite + TS + Tailwind), builds successfully
+- [x] Backend solution scaffolded (`src/*`, `tests/*`), fully Docker-based
+- [x] Domain layer (entities, enums, business rules)
+- [x] Application layer (CQRS commands/queries, validation)
+- [x] Infrastructure layer (EF Core, repositories, background worker)
+- [x] Api layer (endpoints, DI, CORS, error handling)
+- [x] Unit tests (xUnit + Moq)
+- [ ] `dotnet restore` / `docker compose up --build` verified end-to-end
+      (**action required**: verify on your machine — see note below)
+- [ ] EF Core initial migration generated (currently using `EnsureCreated`)
+- [ ] `DEPLOYMENT.md` finalized
+
+> **Note**: the backend code was written and reviewed for correctness, but
+> NuGet package restore could not be executed from this session's sandboxed
+> environment (TLS interception unrelated to your machine). Please run
+> `docker compose up --build` and report back any compiler errors so they
+> can be fixed immediately.
