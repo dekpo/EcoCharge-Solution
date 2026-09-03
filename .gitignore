@@ -1,0 +1,67 @@
+## =====================================================================
+## EcoCharge Solution - root .gitignore (monorepo: .NET backend + React client)
+## =====================================================================
+
+## ---------- .NET ----------
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.pdb
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+
+# EF Core migrations are versioned; only ignore local dev SQLite DB files
+*.db
+*.db-shm
+*.db-wal
+!**/Migrations/**
+
+# Local secrets / environment overrides (never commit real secrets)
+**/appsettings.Development.local.json
+**/appsettings.*.local.json
+*.env
+.env
+.env.*
+!.env.example
+
+## ---------- Node / React client ----------
+node_modules/
+EcoCharge.Client/dist/
+EcoCharge.Client/dist-ssr/
+EcoCharge.Client/.vite/
+*.local
+
+# npm/yarn/pnpm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+## ---------- Docker ----------
+docker-compose.override.yml
+
+## ---------- IDE / OS ----------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+## ---------- Local-only / never published content ----------
+## Nothing related to the AI-assisted workflow, internal French notes, or
+## the original prompt/script that kicked off this project should ever be
+## pushed publicly. Kept locally only — do not remove these lines.
+AGENTS.md
+AI-Context/
+docs/
+*.private.md
