@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EcoCharge.Api/EcoCharge.Api.csproj" />
+    <Project Path="src/EcoCharge.Application/EcoCharge.Application.csproj" />
+    <Project Path="src/EcoCharge.Domain/EcoCharge.Domain.csproj" />
+    <Project Path="src/EcoCharge.Infrastructure/EcoCharge.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EcoCharge.Tests/EcoCharge.Tests.csproj" />
+  </Folder>
+</Solution>
