@@ -1,0 +1,59 @@
+# Local development / self-hosting stack for EcoCharge.
+#
+# Usage:
+#   docker compose up --build                      # SQLite (default), API + client
+#   docker compose --profile postgres up --build    # PostgreSQL instead of SQLite
+#
+# By design, this is the ONLY thing anyone needs to run this project end to
+# end: no local .NET SDK, no local Node/npm, nothing beyond Docker itself.
+# (For active backend development without a full container rebuild each
+# time, see scripts/dotnet.sh / scripts/dotnet.ps1, which also only require
+# Docker.)
+name: ecocharge
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/EcoCharge.Api/Dockerfile
+    container_name: ecocharge-api
+    ports:
+      - "5080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__Default=${ECOCHARGE_CONNECTION_STRING:-Data Source=/data/ecocharge.db}
+      - Cors__AllowedOrigin=${ECOCHARGE_CLIENT_ORIGIN:-http://localhost:5173}
+    volumes:
+      - ecocharge-data:/data
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./EcoCharge.Client
+      args:
+        VITE_API_BASE_URL: ${ECOCHARGE_API_BASE_URL:-http://localhost:5080}
+    container_name: ecocharge-client
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # Optional: run with `docker compose --profile postgres up`
+  postgres:
+    image: postgres:17-alpine
+    container_name: ecocharge-postgres
+    profiles: ["postgres"]
+    environment:
+      - POSTGRES_USER=ecocharge
+      - POSTGRES_PASSWORD=${ECOCHARGE_DB_PASSWORD:-ecocharge_dev_only}
+      - POSTGRES_DB=ecocharge
+    ports:
+      - "5432:5432"
+    volumes:
+      - ecocharge-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  ecocharge-data:
+  ecocharge-postgres-data:
