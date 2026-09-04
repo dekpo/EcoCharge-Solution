@@ -10,6 +10,19 @@ export const StationStatus = {
 
 export type StationStatus = (typeof StationStatus)[keyof typeof StationStatus];
 
+/** Accepts the API string names or the numeric enum values System.Text.Json uses by default. */
+export function asStationStatus(value: unknown): StationStatus {
+  if (value === StationStatus.Charging || value === 1 || value === '1') {
+    return StationStatus.Charging;
+  }
+
+  if (value === StationStatus.Maintenance || value === 2 || value === '2') {
+    return StationStatus.Maintenance;
+  }
+
+  return StationStatus.Available;
+}
+
 export interface ChargingStation {
   id: string;
   name: string;

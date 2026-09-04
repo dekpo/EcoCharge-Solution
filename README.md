@@ -1,12 +1,13 @@
 # EcoCharge
 
-EcoCharge is an EV charging station fleet management and optimization system
-built for Swiss businesses operating vehicle fleets. It tracks charging
-stations, live charge sessions, and real-time power consumption across a
-fleet, with a lightweight footprint designed to run comfortably on a small
-personal VPS.
+EcoCharge is an EV charging station fleet management demo for Swiss fleets.
+It tracks stations, live charge sessions, and simulated real-time power
+draw. The whole stack — .NET 10 API, SQLite, React dashboard — runs in
+Docker. **No native .NET SDK, and no VPS, is required to try it.**
 
-> **Status**: work in progress — see [Project status](#project-status).
+> **Status**: local Docker demo. Clone, `docker compose up --build`, open
+> http://localhost:5173. Optional self-hosting is documented in
+> [`DEPLOYMENT.md`](./DEPLOYMENT.md) (same Compose file, any Docker host).
 
 ## Zero local install, by design
 
@@ -43,8 +44,9 @@ EcoCharge-Solution/
 ├── tests/
 │   └── EcoCharge.Tests/           # xUnit + Moq unit tests
 ├── EcoCharge.Client/               # React 18+ / TypeScript / Tailwind CSS (Vite)
+├── screenshots/                    # Public README gallery (tracked)
 ├── docker-compose.yml              # Local/self-hosted stack (API + client + optional Postgres)
-├── DEPLOYMENT.md                   # VPS deployment guide (Docker or systemd + Nginx)
+├── DEPLOYMENT.md                   # Optional: same stack on any Docker host
 └── CONTRIBUTING.md                 # Branching / commit conventions
 ```
 
@@ -96,6 +98,11 @@ On first start with an empty database, the API inserts three demo charging
 stations (Lausanne, Bern, Zurich) so the dashboard is not empty. The seed
 is skipped as soon as any station already exists.
 
+The API applies pending migrations on startup (`MigrateAsync`). If you still
+have a SQLite file created by the older `EnsureCreated` path, delete the
+file or the Docker volume once before the first start — see
+[`DEPLOYMENT.md`](./DEPLOYMENT.md).
+
 ### Frontend only, with hot-reload (faster UI iteration)
 
 ```bash
@@ -123,17 +130,30 @@ scripts\dotnet.cmd ef migrations add <Name> --project src/EcoCharge.Infrastructu
 ./scripts/dotnet.sh ef migrations add <Name> --project src/EcoCharge.Infrastructure --startup-project src/EcoCharge.Api --output-dir Persistence/Migrations
 ```
 
-The API applies pending migrations on startup (`MigrateAsync`). If you still
-have a SQLite file created by the older `EnsureCreated` path, delete the
-file or the Docker volume once before the first start — see
-[`DEPLOYMENT.md`](./DEPLOYMENT.md).
+## Screenshots
 
-## Deployment
+Local Docker demo. Open http://localhost:5173 after `docker compose up --build`.
 
-See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for VPS deployment options (Docker
-or systemd + Nginx). **No deployment action is ever taken automatically —
-deploying to the production VPS always requires explicit, per-action
-approval from the project owner.**
+![KPI banner — 3 stations, live kW, active sessions](screenshots/01-dashboard-kpis.png)
+
+![Three Swiss stations ready to start](screenshots/02-stations-start.png)
+
+![Start and Stop together — Lausanne available, Bern and Zurich charging](screenshots/03-start-and-stop.png)
+
+![All three stations charging](screenshots/04-all-charging.png)
+
+![Live consumption log from the backend worker](screenshots/05-consumption-log.png)
+
+![Same stack running in Docker Desktop — no VPS required](screenshots/06-docker-desktop.png)
+
+## Deployment (optional)
+
+The default demo is **local Docker**. The same `docker-compose.yml` runs on
+any host that can run Docker (a personal VPS, a spare laptop, CI). There is
+no hosted production instance attached to this repository.
+
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) if you want HTTPS, Nginx, or systemd
+in front of Compose. **Nothing is deployed automatically.**
 
 ## Contributing / Git workflow
 
@@ -154,3 +174,4 @@ message conventions.
 - [x] EF Core initial migration generated (applied on API startup)
 - [x] `DEPLOYMENT.md` finalized
 - [x] Demo charging stations seeded when the database is empty
+- [x] Station cards show Start / Stop from the API status (string enums)

@@ -1,8 +1,9 @@
 # Deployment
 
-This guide describes how to run EcoCharge on a Linux host (personal VPS or
-any small server) using either Docker Compose or systemd + Nginx. It is
-intentionally generic: it contains no hostnames, IP addresses, or secrets.
+This guide describes how to run EcoCharge on **any Linux host that can run
+Docker** (a personal VPS, a homelab box, or a spare machine). The default
+demo path is still `docker compose up --build` on your laptop — this file
+is optional. It contains no hostnames, IP addresses, or secrets.
 
 **Deployment is never automatic.** Shipping a new version to a production
 host always requires an explicit, per-action decision from the project

@@ -66,6 +66,9 @@ AI-Context/
 docs/
 *.private.md
 
+# Public product screenshots live in /screenshots (tracked). Do not put them
+# under docs/ — that directory is local-only.
+
 ## ---------- Local CA certificates (machine-specific, never commit) ----------
 certs/*.crt
 certs/*.pem
