@@ -65,3 +65,7 @@ AGENTS.md
 AI-Context/
 docs/
 *.private.md
+
+## ---------- Local CA certificates (machine-specific, never commit) ----------
+certs/*.crt
+certs/*.pem

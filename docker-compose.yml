@@ -29,7 +29,8 @@ services:
 
   client:
     build:
-      context: ./EcoCharge.Client
+      context: .
+      dockerfile: EcoCharge.Client/Dockerfile
       args:
         VITE_API_BASE_URL: ${ECOCHARGE_API_BASE_URL:-http://localhost:5080}
     container_name: ecocharge-client

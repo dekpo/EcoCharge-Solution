@@ -138,13 +138,6 @@ message conventions.
 - [x] Infrastructure layer (EF Core, repositories, background worker)
 - [x] Api layer (endpoints, DI, CORS, error handling)
 - [x] Unit tests (xUnit + Moq)
-- [ ] `dotnet restore` / `docker compose up --build` verified end-to-end
-      (**action required**: verify on your machine — see note below)
+- [x] `docker compose up --build` verified end-to-end (API + client images)
 - [ ] EF Core initial migration generated (currently using `EnsureCreated`)
 - [ ] `DEPLOYMENT.md` finalized
-
-> **Note**: the backend code was written and reviewed for correctness, but
-> NuGet package restore could not be executed from this session's sandboxed
-> environment (TLS interception unrelated to your machine). Please run
-> `docker compose up --build` and report back any compiler errors so they
-> can be fixed immediately.
