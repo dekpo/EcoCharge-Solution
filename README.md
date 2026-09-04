@@ -92,6 +92,10 @@ docker compose --profile postgres up --build    # with PostgreSQL instead
 
 API on http://localhost:5080, client on http://localhost:5173.
 
+On first start with an empty database, the API inserts three demo charging
+stations (Lausanne, Bern, Zurich) so the dashboard is not empty. The seed
+is skipped as soon as any station already exists.
+
 ### Frontend only, with hot-reload (faster UI iteration)
 
 ```bash
@@ -149,3 +153,4 @@ message conventions.
 - [x] `docker compose up --build` verified end-to-end (API + client images)
 - [x] EF Core initial migration generated (applied on API startup)
 - [x] `DEPLOYMENT.md` finalized
+- [x] Demo charging stations seeded when the database is empty

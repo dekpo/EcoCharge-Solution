@@ -263,4 +263,4 @@ the client.
 | Dashboard calls the wrong API host | Rebuild the client after changing `ECOCHARGE_API_BASE_URL` (build-time) |
 | API exits on startup mentioning migrations / tables | Old `EnsureCreated` SQLite file or volume — remove it once, see [Database and migrations](#database-and-migrations) |
 | `GET /health` fails | Container not up; port mapping; reverse proxy target |
-| Empty station list | Expected on a fresh database — create stations via `POST /api/stations` |
+| Empty station list | Unexpected after a fresh start — the API seeds 3 demo stations when the table is empty. Check API logs and `GET /api/stations` |

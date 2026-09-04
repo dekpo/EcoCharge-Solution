@@ -44,6 +44,10 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await dbContext.Database.MigrateAsync();
+
+    var seederLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+        .CreateLogger(typeof(DemoStationSeeder));
+    await DemoStationSeeder.SeedIfEmptyAsync(dbContext, seederLogger);
 }
 
 // ---- Middleware pipeline ---------------------------------------------------
