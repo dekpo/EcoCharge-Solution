@@ -15,9 +15,16 @@
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $SdkImage = "mcr.microsoft.com/dotnet/sdk:10.0"
 
+# Local tools (dotnet-ef) are restored in the same container as the command,
+# because each invocation is ephemeral.
+$quotedArgs = ($args | ForEach-Object {
+    if ($_ -match "[\s""']") { '"' + ($_ -replace '"', '\"') + '"' } else { $_ }
+}) -join ' '
+
 docker run --rm -it `
   -v "${RepoRoot}:/src" `
   -w /src `
   -e DOTNET_CLI_TELEMETRY_OPTOUT=1 `
   -e NUGET_XMLDOC_MODE=skip `
-  $SdkImage dotnet @args
+  $SdkImage `
+  bash -c "if [ -f .config/dotnet-tools.json ] || [ -f dotnet-tools.json ]; then dotnet tool restore; fi && dotnet $quotedArgs"

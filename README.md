@@ -23,8 +23,9 @@ That's it. The `api` image is built with a multi-stage `Dockerfile`
 (SDK for build, slim ASP.NET runtime for execution), so the container
 build itself pulls in whatever .NET SDK version is pinned, on demand,
 without ever touching the host. The same principle applies to day-to-day
-backend development — see [`scripts/dotnet.sh`](./scripts/dotnet.sh) /
-[`scripts/dotnet.ps1`](./scripts/dotnet.ps1), thin wrappers that run any
+backend development — see [`scripts/dotnet.cmd`](./scripts/dotnet.cmd)
+(Windows, cmd.exe), [`scripts/dotnet.sh`](./scripts/dotnet.sh), or
+[`scripts/dotnet.ps1`](./scripts/dotnet.ps1). These wrappers run any
 `dotnet` command inside the SDK container with the repo mounted, so even
 `dotnet test` or `dotnet ef migrations add` never require a native install.
 
@@ -107,6 +108,7 @@ REM Windows — classic cmd.exe (preferred)
 scripts\dotnet.cmd restore
 scripts\dotnet.cmd test
 scripts\dotnet.cmd run --project src/EcoCharge.Api
+scripts\dotnet.cmd ef migrations add <Name> --project src/EcoCharge.Infrastructure --startup-project src/EcoCharge.Api --output-dir Persistence/Migrations
 ```
 
 ```bash
@@ -114,7 +116,13 @@ scripts\dotnet.cmd run --project src/EcoCharge.Api
 ./scripts/dotnet.sh restore
 ./scripts/dotnet.sh test
 ./scripts/dotnet.sh run --project src/EcoCharge.Api
+./scripts/dotnet.sh ef migrations add <Name> --project src/EcoCharge.Infrastructure --startup-project src/EcoCharge.Api --output-dir Persistence/Migrations
 ```
+
+The API applies pending migrations on startup (`MigrateAsync`). If you still
+have a SQLite file created by the older `EnsureCreated` path, delete the
+file or the Docker volume once before the first start — see
+[`DEPLOYMENT.md`](./DEPLOYMENT.md).
 
 ## Deployment
 
@@ -139,5 +147,5 @@ message conventions.
 - [x] Api layer (endpoints, DI, CORS, error handling)
 - [x] Unit tests (xUnit + Moq)
 - [x] `docker compose up --build` verified end-to-end (API + client images)
-- [ ] EF Core initial migration generated (currently using `EnsureCreated`)
-- [ ] `DEPLOYMENT.md` finalized
+- [x] EF Core initial migration generated (applied on API startup)
+- [x] `DEPLOYMENT.md` finalized

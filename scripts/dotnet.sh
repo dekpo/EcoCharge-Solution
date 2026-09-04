@@ -15,9 +15,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SDK_IMAGE="mcr.microsoft.com/dotnet/sdk:10.0"
 
+# Local tools (dotnet-ef) are restored in the same container as the command,
+# because each invocation is ephemeral.
 docker run --rm -it \
   -v "${REPO_ROOT}:/src" \
   -w /src \
   -e DOTNET_CLI_TELEMETRY_OPTOUT=1 \
   -e NUGET_XMLDOC_MODE=skip \
-  "${SDK_IMAGE}" dotnet "$@"
+  "${SDK_IMAGE}" \
+  bash -c 'if [ -f .config/dotnet-tools.json ] || [ -f dotnet-tools.json ]; then dotnet tool restore; fi; exec dotnet "$@"' -- "$@"
