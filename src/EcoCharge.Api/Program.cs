@@ -34,17 +34,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ---- Database provisioning on startup -------------------------------------
-// NOTE: no EF Core migration has been generated yet (requires a real `dotnet
-// ef migrations add InitialCreate`, which needs NuGet restore to have run at
-// least once - see README "Getting the backend running"). Until then,
-// EnsureCreatedAsync provisions the schema directly from the model, which is
-// enough for local/demo use. Switch to `await dbContext.Database.MigrateAsync()`
-// once a migrations history exists, so schema changes are tracked properly.
+// ---- Database migrations on startup ---------------------------------------
+// Apply pending EF Core migrations so the schema stays in source control
+// (Infrastructure/Persistence/Migrations). If a SQLite file was previously
+// created with EnsureCreated, delete it (or the Docker volume) once —
+// otherwise MigrateAsync will fail because tables already exist without a
+// __EFMigrationsHistory row.
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
+    await dbContext.Database.MigrateAsync();
 }
 
 // ---- Middleware pipeline ---------------------------------------------------
