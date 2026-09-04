@@ -1,10 +1,5 @@
 import { apiClient } from '@/services/apiClient';
-import type {
-  ChargeSession,
-  ChargingStation,
-  ConsumptionLogEntry,
-  CreateChargingStationRequest,
-} from '@/types/station';
+import { asStationStatus, type ChargeSession, type ChargingStation, type ConsumptionLogEntry, type CreateChargingStationRequest } from '@/types/station';
 
 /**
  * Typed wrapper around the EcoCharge.Api charging-stations endpoints.
@@ -14,12 +9,12 @@ import type {
 export const stationsService = {
   async getStations(): Promise<ChargingStation[]> {
     const { data } = await apiClient.get<ChargingStation[]>('/api/stations');
-    return data;
+    return data.map((station) => ({ ...station, status: asStationStatus(station.status) }));
   },
 
   async createStation(payload: CreateChargingStationRequest): Promise<ChargingStation> {
     const { data } = await apiClient.post<ChargingStation>('/api/stations', payload);
-    return data;
+    return { ...data, status: asStationStatus(data.status) };
   },
 
   async startCharge(stationId: string, vehicleIdentifier: string): Promise<ChargeSession> {

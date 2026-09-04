@@ -1,8 +1,9 @@
 # Deployment
 
-This guide describes how to run EcoCharge on a Linux host (personal VPS or
-any small server) using either Docker Compose or systemd + Nginx. It is
-intentionally generic: it contains no hostnames, IP addresses, or secrets.
+This guide describes how to run EcoCharge on **any Linux host that can run
+Docker** (a personal VPS, a homelab box, or a spare machine). The default
+demo path is still `docker compose up --build` on your laptop — this file
+is optional. It contains no hostnames, IP addresses, or secrets.
 
 **Deployment is never automatic.** Shipping a new version to a production
 host always requires an explicit, per-action decision from the project
@@ -263,4 +264,4 @@ the client.
 | Dashboard calls the wrong API host | Rebuild the client after changing `ECOCHARGE_API_BASE_URL` (build-time) |
 | API exits on startup mentioning migrations / tables | Old `EnsureCreated` SQLite file or volume — remove it once, see [Database and migrations](#database-and-migrations) |
 | `GET /health` fails | Container not up; port mapping; reverse proxy target |
-| Empty station list | Expected on a fresh database — create stations via `POST /api/stations` |
+| Empty station list | Unexpected after a fresh start — the API seeds 3 demo stations when the table is empty. Check API logs and `GET /api/stations` |
