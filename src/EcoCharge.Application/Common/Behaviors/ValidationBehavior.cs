@@ -1,6 +1,7 @@
-using EcoCharge.Application.Common.Exceptions;
 using FluentValidation;
 using MediatR;
+// Alias to avoid ambiguity with FluentValidation.ValidationException.
+using ValidationException = EcoCharge.Application.Common.Exceptions.ValidationException;
 
 namespace EcoCharge.Application.Common.Behaviors;
 

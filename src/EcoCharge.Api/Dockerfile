@@ -15,6 +15,15 @@ COPY src/EcoCharge.Application/EcoCharge.Application.csproj src/EcoCharge.Applic
 COPY src/EcoCharge.Infrastructure/EcoCharge.Infrastructure.csproj src/EcoCharge.Infrastructure/
 COPY src/EcoCharge.Api/EcoCharge.Api.csproj src/EcoCharge.Api/
 COPY tests/EcoCharge.Tests/EcoCharge.Tests.csproj tests/EcoCharge.Tests/
+
+# Inject host CA certificates if present (needed when network uses TLS inspection).
+# Generate certs/win-cas.crt once — see certs/README.md.
+COPY certs/ /tmp/certs/
+RUN if ls /tmp/certs/*.crt > /dev/null 2>&1; then \
+      cp /tmp/certs/*.crt /usr/local/share/ca-certificates/ && \
+      update-ca-certificates; \
+    fi
+
 RUN dotnet restore src/EcoCharge.Api/EcoCharge.Api.csproj
 
 COPY src/ src/
@@ -24,7 +33,7 @@ RUN dotnet publish src/EcoCharge.Api/EcoCharge.Api.csproj -c Release -o /app --n
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-RUN useradd --uid 1654 --user-group ecocharge \
+RUN useradd --system --no-create-home --user-group ecocharge \
     && mkdir -p /data && chown ecocharge:ecocharge /data
 USER ecocharge
 
