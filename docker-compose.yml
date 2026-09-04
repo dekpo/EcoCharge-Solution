@@ -7,8 +7,8 @@
 # By design, this is the ONLY thing anyone needs to run this project end to
 # end: no local .NET SDK, no local Node/npm, nothing beyond Docker itself.
 # (For active backend development without a full container rebuild each
-# time, see scripts/dotnet.sh / scripts/dotnet.ps1, which also only require
-# Docker.)
+# time, see scripts/dotnet.cmd / scripts/dotnet.sh, which also only require
+# Docker. Pending EF Core migrations are applied when the API starts.)
 name: ecocharge
 
 services:
